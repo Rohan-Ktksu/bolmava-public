@@ -35,6 +35,6 @@ The **assistant's chat replies** are written in the backend (`backend/app/conver
 
 ## After the review
 
-Send the filled sheet back. The development side applies the changes, re-runs the checks and the automated Telugu review, and records who reviewed it and what changed in `HANDOFF.md`. Only then does the app count as human-reviewed Telugu.
+Send the filled sheet back. The development side applies the changes, re-runs the checks and the automated Telugu review, and records who reviewed it and what changed. Only then does the app count as human-reviewed Telugu.
 
 To refresh the sheet after text changes: `python tools/telugu_sheet.py`.
