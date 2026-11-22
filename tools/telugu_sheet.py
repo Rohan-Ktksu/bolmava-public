@@ -53,6 +53,7 @@ NOTES = {
     "cmp.close": "AI suggested మూసివేయండి for closing a complaint (now ముగించండి, matching status.case.closed).",
     "chat.role.agent": "App-wide term సపోర్ట్ వ్యక్తి; see cmp.talk.",
     "chat.pa.validUntil": "An earlier AI run suggested adding గడువు.",
+    "status.fulfil.dispatched": "The app says పంపబడింది / పంపడం for dispatch; on the front page AI suggested the loanword డిస్పాచ్. Decide once for all screens.",
 }
 
 
