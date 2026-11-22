@@ -58,7 +58,7 @@ python backend\perf\summary.py out\perf_stats.csv "20 users, 60 s"
 
 ## Approximate consumption
 
-In a private copy, minutes count against the account's included GitHub Actions allowance (public repositories use standard runners free) (2,000 minutes a month on GitHub Free, 3,000 on Pro; standard Linux runners count at 1×). Level 1 uses about 3 runner-minutes per PR push (two jobs, each rounded up to a whole minute). Level 2 and Level 3 times are recorded in HANDOFF.md after their first runs. Example month: 40 PR pushes at Level 1 (~120 min) plus 10 labelled Level 2 runs and 2 benchmarks stays well inside the allowance. No paid resources are created.
+Standard runners are free for public repositories. In a private copy, minutes count against the account's included GitHub Actions allowance (2,000 minutes a month on GitHub Free, 3,000 on Pro; standard Linux runners count at 1×). Level 1 uses about 3 runner-minutes per PR push (two jobs, each rounded up to a whole minute). Example month: 40 PR pushes at Level 1 (~120 min) plus 10 labelled Level 2 runs and 2 benchmarks stays well inside the allowance. No paid resources are created.
 
 ## Gaps not covered yet
 
