@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bolmava: talk-to-trade for electrical switches</title>
+<meta name="description" content="Bolmava v1 beta: a working demo of a Telugu and English trade assistant for electrical switch manufacturers, distributors and shops. Fictional data, simulated money.">
+<style>
+  :root {
+    --paper: #faf6f0; --card: #fffdf9; --ink: #1d1b33; --ink-2: #55526e; --line: #e6dccd;
+    --indigo: #2e2f72; --accent: #b4471f; --accent-soft: #f6e2d6; --ok: #2f6b3a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #15142a; --card: #1e1d38; --ink: #f2eee8; --ink-2: #b9b4cc; --line: #34325a; --indigo: #8f92ff; --accent: #ff9a6b; --accent-soft: #3a2a26; --ok: #7fd18e; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.6 system-ui, -apple-system, "Segoe UI", "Noto Sans Telugu", sans-serif; }
+  a { color: var(--indigo); }
+  .strip { background: var(--indigo); color: #fff; text-align: center; padding: 6px 16px; font-size: 15px; font-weight: 600; }
+  @media (prefers-color-scheme: dark) { .strip { color: var(--paper); } }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+  header.hero { padding: 48px 0 24px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; }
+  .brand b { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; background: var(--indigo); color: #fff; }
+  h1 { font-size: clamp(30px, 5vw, 48px); line-height: 1.15; margin: 20px 0 12px; }
+  h2 { font-size: 28px; margin: 56px 0 12px; }
+  h3 { margin: 0 0 6px; font-size: 18px; }
+  .lead { font-size: 20px; color: var(--ink-2); max-width: 760px; }
+  .badge { display: inline-block; border: 1.5px solid var(--accent); color: var(--accent); border-radius: 999px; padding: 2px 12px; font-weight: 700; font-size: 15px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+  .btn { display: inline-block; padding: 10px 18px; border-radius: 10px; border: 1.5px solid var(--indigo); text-decoration: none; font-weight: 700; }
+  .btn.primary { background: var(--indigo); color: #fff; }
+  @media (prefers-color-scheme: dark) { .btn.primary { color: var(--paper); } }
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+  .card { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 18px; }
+  .card p { margin: 0; color: var(--ink-2); }
+  figure { margin: 0; }
+  figure img { width: 100%; height: auto; border-radius: 12px; border: 1.5px solid var(--line); display: block; }
+  figcaption { font-size: 15px; color: var(--ink-2); margin-top: 6px; }
+  .shots { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 15px; color: var(--ink-2); }
+  .tablewrap { overflow-x: auto; }
+  .yes { color: var(--ok); font-weight: 700; white-space: nowrap; }
+  .no { color: var(--accent); font-weight: 700; white-space: nowrap; }
+  ol.timeline { list-style: none; padding: 0; margin: 0; border-left: 3px solid var(--line); }
+  ol.timeline li { position: relative; padding: 0 0 22px 22px; }
+  ol.timeline li::before { content: ""; position: absolute; left: -9px; top: 6px; width: 15px; height: 15px; border-radius: 50%; background: var(--indigo); }
+  .when { font-weight: 800; }
+  pre { background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; padding: 14px; overflow-x: auto; font-size: 14px; }
+  code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+  footer { margin: 64px 0 32px; color: var(--ink-2); font-size: 15px; }
+</style>
+</head>
+<body>
+<div class="strip">Fictional data · Simulated money · No real payments or identity checks</div>
+<div class="wrap">
+
+<header class="hero">
+  <div class="brand"><b>B</b> Bolmava</div>
+  <h1>Trade electrical switches by talking, in Telugu or English</h1>
+  <p class="lead">Bolmava helps manufacturers, distributors and shops find products, agree quotes, place orders and sort out problems by typing or speaking. It keeps every promise in the database, not in the chat: nothing is bought until a person presses Confirm, and money needs two people.</p>
+  <p><span class="badge">Version 1.0.0 beta: a working demo, not a live service</span></p>
+  <div class="cta">
+    <a class="btn primary" href="https://github.com/Rohan-Ktksu/bolmava-public">Source code on GitHub</a>
+    <a class="btn" href="#run">Run it on your computer</a>
+    <a class="btn" href="#flow">See the demo flow</a>
+  </div>
+</header>
+
+<h2>What it does</h2>
+<div class="grid">
+  <div class="card"><h3>Ask the assistant</h3><p>Type or speak in Telugu or English. It finds products and prepares a quote request or an order, but nothing happens until you press Confirm.</p></div>
+  <div class="card"><h3>Quotes and orders</h3><p>Buyers ask, sellers quote, and an order is placed on exactly the version and total the buyer saw. Retrying after a lost connection never orders twice.</p></div>
+  <div class="card"><h3>Stock and delivery</h3><p>Sellers manage products and stock. Orders move from dispatched to delivered to accepted; cancelling before dispatch puts the stock back exactly once.</p></div>
+  <div class="card"><h3>Complaints and real people</h3><p>Customers raise complaints and talk to a support person, who sees the complaint and the chat on one screen. Internal notes never reach the customer.</p></div>
+  <div class="card"><h3>Simulated payments</h3><p>Advances, receipts and reversals always need a second finance person to approve the exact terms. No real money moves anywhere.</p></div>
+  <div class="card"><h3>Reports, voice and WhatsApp simulator</h3><p>Sales and purchases for any period, a free browser voice button, and a clearly labelled WhatsApp-style chat on the same records.</p></div>
+</div>
+
+<h2 id="flow">The demo flow</h2>
+<p>The original 14-step story, run through the real screens, server and database. An automated browser test walks through steps 2 to 13 on every change.</p>
+<div class="tablewrap"><table>
+  <thead><tr><th>#</th><th>Step</th><th>In v1 beta</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>A manufacturer registers (by voice)</td><td><span class="yes">Yes</span>: Register a business, each field typed or spoken (demo people; real accounts come later)</td></tr>
+    <tr><td>2</td><td>The manufacturer lists a product</td><td><span class="yes">Yes</span>: products, prices, delivery cities and stock</td></tr>
+    <tr><td>3–4</td><td>A distributor asks; the assistant matches the manufacturer</td><td><span class="yes">Yes</span>: "find 20 amp two way switch" in the chat, typed or spoken</td></tr>
+    <tr><td>5</td><td>The distributor receives a quotation</td><td><span class="yes">Yes</span></td></tr>
+    <tr><td>6</td><td>They negotiate</td><td><span class="yes">Yes</span>: reject version 1, receive a cheaper version 2</td></tr>
+    <tr><td>7</td><td>The buyer confirms a simulated order</td><td><span class="yes">Yes</span>: exact terms shown first</td></tr>
+    <tr><td>8</td><td>Finance reviews a simulated advance</td><td><span class="yes">Yes</span>: approved by a second person, then recorded</td></tr>
+    <tr><td>9</td><td>The order moves to delivery</td><td><span class="yes">Yes</span></td></tr>
+    <tr><td>10</td><td>The buyer raises a quality complaint</td><td><span class="yes">Yes</span></td></tr>
+    <tr><td>11</td><td>The assistant hands over to human support</td><td><span class="yes">Yes</span>: the assistant pauses until the person hands back</td></tr>
+    <tr><td>12</td><td>The support person updates the complaint</td><td><span class="yes">Yes</span>: complaint and chat on one screen</td></tr>
+    <tr><td>13</td><td>The seller asks the assistant for a report</td><td><span class="yes">Yes</span>: in Telugu or English, matching the report screen</td></tr>
+    <tr><td>14</td><td>The seller switches to WhatsApp or the portal</td><td><span class="yes">Portal: yes</span> · <span class="no">WhatsApp: labelled simulator only</span></td></tr>
+  </tbody>
+</table></div>
+
+<h2>Screens</h2>
+<div class="shots">
+  <figure><img src="img/01-front-page.png" alt="Front page explaining Bolmava, with demo people grouped by role" loading="lazy"><figcaption>Front page: what Bolmava is, how to try it, and the fictional demo people by role.</figcaption></figure>
+  <figure><img src="img/02-find-products.png" alt="Product search with filters and seller details" loading="lazy"><figcaption>Find products by words, rating, city and quantity.</figcaption></figure>
+  <figure><img src="img/03-assistant-proposal.png" alt="Assistant chat with a proposal card and a separate Confirm button" loading="lazy"><figcaption>The assistant prepares a quote request; only the separate Confirm button sends it.</figcaption></figure>
+  <figure><img src="img/04-confirm-exact-terms.png" alt="Order review showing exact quoted terms and totals" loading="lazy"><figcaption>Before ordering, the buyer sees the exact quoted terms and totals.</figcaption></figure>
+  <figure><img src="img/05-finance-approval.png" alt="Finance approval of a simulated advance with exact terms" loading="lazy"><figcaption>A second finance person approves a simulated advance.</figcaption></figure>
+  <figure><img src="img/06-order-delivery-and-payments.png" alt="Order page with delivery timeline and simulated payments" loading="lazy"><figcaption>Order delivery timeline and simulated payments, as the seller sees them.</figcaption></figure>
+  <figure><img src="img/07-support-complaint-with-chat.png" alt="Support complaint page with the customer chat inline" loading="lazy"><figcaption>A support person answers the customer's chat right on the complaint.</figcaption></figure>
+  <figure><img src="img/08-reports.png" alt="Report with sales and purchases for a period" loading="lazy"><figcaption>Reports split sales from purchases; only recorded receipts count.</figcaption></figure>
+  <figure><img src="img/09-whatsapp-simulator.png" alt="Labelled WhatsApp simulator showing a report" loading="lazy"><figcaption>A clearly labelled WhatsApp simulator on the same records.</figcaption></figure>
+  <figure><img src="img/10-register-business.png" alt="Register a business form with Speak buttons" loading="lazy"><figcaption>Register a business, typing or speaking each detail.</figcaption></figure>
+</div>
+
+<h2>What it is built with</h2>
+<div class="grid">
+  <div class="card"><h3>Backend</h3><p>Python, FastAPI, Pydantic, SQLAlchemy 2, Alembic migrations, PostgreSQL 16. The server decides every rule: permissions, stock, totals in integer paise, quote versions and confirmation.</p></div>
+  <div class="card"><h3>Frontend</h3><p>React 19, Vite, TypeScript, React Router. Telugu and English throughout, keyboard and screen-reader friendly, and laid out for a 360 px phone.</p></div>
+  <div class="card"><h3>Assistant</h3><p>A rule-based assistant that needs no AI service or API key. It reads Telugu and English, including spoken forms, and only ever proposes actions.</p></div>
+  <div class="card"><h3>Live updates and voice</h3><p>PostgreSQL LISTEN/NOTIFY with a server-sent event stream for chat replies; the browser's free Web Speech API for voice input.</p></div>
+  <div class="card"><h3>Testing</h3><p>124 backend tests on real PostgreSQL, 10 regression checks from independent reviews, 27 unit tests and 57 browser tests that drive the real app.</p></div>
+  <div class="card"><h3>Automation</h3><p>GitHub Actions run every check on each change; an advisory, AI-assisted Telugu wording review uses free Gemini models, with a fluent human review still to come.</p></div>
+</div>
+
+<h2>How it is kept safe, even as a demo</h2>
+<div class="grid">
+  <div class="card"><h3>Explicit confirmation</h3><p>The assistant can propose, never buy. Orders bind to the exact quote version and total the buyer saw.</p></div>
+  <div class="card"><h3>Two people for money</h3><p>Whoever asks for a payment or a reversal can never approve it. Balances come only from recorded events.</p></div>
+  <div class="card"><h3>Safe retries</h3><p>Orders, quote requests, messages, stock changes and registrations carry retry keys, so a lost connection never duplicates them.</p></div>
+  <div class="card"><h3>Privacy by assignment</h3><p>A support person sees a customer's chat only while handling it, and internal notes never reach buyers or sellers.</p></div>
+</div>
+
+<h2>The journey</h2>
+<ol class="timeline">
+  <li><span class="when">26 October 2026</span> · The idea and the ground rules: a talk-to-trade assistant for Telugu-speaking switch traders, fictional data and simulated money from day one.</li>
+  <li><span class="when">27 October</span> · Specification first, then the backend foundation on FastAPI and PostgreSQL: organizations, roles, catalog and stock, followed by quote requests, versioned quotes, explicit orders and the rule-based assistant.</li>
+  <li><span class="when">28–30 October</span> · The operations backend: simulated payments with maker-checker approval, delivery and cancellation, complaints with human handoff, and reports. Every finding from independent reviews was fixed with a regression test.</li>
+  <li><span class="when">31 October</span> · The React and Vite frontend foundation, automated testing on real PostgreSQL in GitHub Actions, and the first trade screens.</li>
+  <li><span class="when">1 November</span> · Seller products and stock, the delivery screens, and an AI-assisted Telugu review step for every wording change.</li>
+  <li><span class="when">7 November</span> · The conversation screen with live replies, paging and browser notifications.</li>
+  <li><span class="when">21 November</span> · Organization reports, the support workspace and simulated finance.</li>
+  <li><span class="when">22 November</span> · Complaints for buyers and sellers, a clean-install and full-demo check, voice input tuned through real microphone tests in Telugu and English, the WhatsApp simulator, business registration, complaint and chat on one screen, and this front page. <strong>Version 1.0.0 beta.</strong></li>
+</ol>
+
+<h2 id="run">Run it on your computer</h2>
+<p>You need Python 3.13, PostgreSQL 16 and Node 24. Everything is free and local; no API keys are required.</p>
+<pre><code># database: create role bolmava and databases bolmava, bolmava_test (see backend/README.md)
+cd backend
+py -3.13 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt -r requirements-dev.txt
+copy .env.example .env          # set LOCAL_AUTH_SECRET to any long random string
+alembic upgrade head
+python -m app.seed
+uvicorn app.main:app --port 8000
+
+# in another terminal
+cd frontend
+npm ci
+npm run dev                     # open http://localhost:5173</code></pre>
+<p>Pick a demo person on the front page. Try Lakshmi (buyer), Anitha (seller), Sanjay (support) and Farah or Arjun (finance) to see each side.</p>
+
+<h2>Honest limits of v1 beta</h2>
+<div class="grid">
+  <div class="card"><h3>Not a live service</h3><p>Fictional people and businesses, simulated money, and a demo sign-in without passwords. Real accounts, hosting and payments are later, separately approved steps.</p></div>
+  <div class="card"><h3>Voice</h3><p>Browser voice works in Chrome and Edge on localhost or https, and needs internet. The browser can mishear, so words appear in the box to check before sending.</p></div>
+  <div class="card"><h3>Telugu</h3><p>All 634 interface strings have Telugu, reviewed with AI assistance. A fluent human review is the next language step.</p></div>
+  <div class="card"><h3>Next, in version 2</h3><p>Secure sign-in, an online staging server, stored evidence files, production voice and phone, real WhatsApp and, only after a separate decision, real payments.</p></div>
+</div>
+
+<footer>
+  <p>Bolmava · version 1.0.0 beta · by <a href="https://github.com/Rohan-Ktksu">Rohan-Ktksu</a>. All businesses, people and money shown are fictional or simulated.</p>
+</footer>
+</div>
+</body>
+</html>

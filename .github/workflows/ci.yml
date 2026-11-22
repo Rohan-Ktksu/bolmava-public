@@ -1,0 +1,125 @@
+# Level 1: runs on every pull request. Manual runs on a chosen commit go through manual.yml, which calls this file.
+name: CI level 1 (backend + frontend)
+
+on:
+  pull_request:
+  workflow_call:
+    inputs:
+      ref:
+        description: "What to test: branch, tag, commit SHA, or refs/pull/<number>/head"
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci1-${{ github.event.pull_request.number || inputs.ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (pytest, regressions, migrations)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      # Disposable databases inside this job's service container only. No secrets are used.
+      APP_ENV: test
+      AUTH_MODE: local
+      LOCAL_AUTH_SECRET: ci-only-demo-signing-value
+      DATABASE_URL: postgresql+psycopg://bolmava:bolmava@localhost:5432/bolmava_ci
+      TEST_DATABASE_URL: postgresql+psycopg://bolmava_test:bolmava_test@localhost:5432/bolmava_test
+      BOLMAVA_DESTRUCTIVE_TESTS: "1"
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref || '' }}
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+      - name: Install pinned backend dependencies
+        run: python -m pip install -r requirements.txt -r requirements-dev.txt
+      - name: Create disposable application and test databases
+        run: |
+          psql -v ON_ERROR_STOP=1 \
+            -c "CREATE ROLE bolmava LOGIN PASSWORD 'bolmava'" \
+            -c "CREATE DATABASE bolmava_ci OWNER bolmava" \
+            -c "CREATE ROLE bolmava_test LOGIN PASSWORD 'bolmava_test'" \
+            -c "CREATE DATABASE bolmava_test OWNER bolmava_test"
+      - name: Migrations - upgrade, downgrade, upgrade, model check, seed twice
+        run: |
+          alembic upgrade head
+          alembic downgrade base
+          alembic upgrade head
+          alembic check
+          python -m app.seed
+          python -m app.seed
+      - name: Backend test suite
+        run: python -m pytest -ra --junitxml=../reports/backend-tests.xml
+      - name: Independent review regressions
+        if: success() || failure()
+        run: python -m pytest -ra -p no:cacheprovider ../reviews/*_regressions.py --junitxml=../reports/review-regressions.xml
+      - name: Summary
+        if: always()
+        run: python ../.github/scripts/junit_summary.py ../reports/backend-tests.xml ../reports/review-regressions.xml >> "$GITHUB_STEP_SUMMARY"
+      - name: Keep reports when something failed
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: backend-reports
+          path: reports/
+          retention-days: 7
+
+  frontend:
+    name: Frontend (lint, build, unit tests)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref || '' }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Lint (errors fail the job; warnings are counted in the summary)
+        run: |
+          npm run lint 2>&1 | tee lint.txt
+      - name: Record lint warnings
+        if: always()
+        run: |
+          count=$(grep -oE "Found [0-9]+ warning" lint.txt | grep -oE "[0-9]+" || echo 0)
+          {
+            echo "### Lint warnings: ${count}"
+            echo
+            echo '```'
+            grep "warning" lint.txt | grep -v "^Found" | sed 's/ help:.*//' | cut -c1-200 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - run: npm run build
+      - run: npm test

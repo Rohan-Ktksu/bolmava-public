@@ -1,0 +1,59 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+service-account*.json
+.aws/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# JavaScript
+node_modules/
+dist/
+coverage/
+
+# Runtime data; commit fictional seed definitions instead
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+/data/
+/uploads/
+/recordings/
+/backups/
+*.log
+.tmp/
+
+# Editor/OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Test outputs
+playwright-report/
+test-results/
+perf-results/
+blob-report/
+
+# Local output of tools/telugu_review.py
+telugu-review-input.json
+telugu-review.md

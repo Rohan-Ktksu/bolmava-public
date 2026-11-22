@@ -1,0 +1,56 @@
+# Manual test run on any branch, tag, commit or PR head. Calls the level 1 and level 2 workflows,
+# then records the result as a commit status on the exact commit tested (GitHub does not attach manual runs to commits).
+name: Manual test run (levels 1-2)
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "What to test: branch, tag, commit SHA, or refs/pull/<number>/head"
+        required: true
+        default: main
+      levels:
+        description: "Which levels to run"
+        type: choice
+        options: ["1 and 2", "1", "2"]
+        default: "1 and 2"
+
+permissions:
+  contents: read
+
+jobs:
+  level1:
+    if: contains(inputs.levels, '1')
+    uses: ./.github/workflows/ci.yml
+    with:
+      ref: ${{ inputs.ref }}
+
+  level2:
+    if: contains(inputs.levels, '2')
+    uses: ./.github/workflows/e2e.yml
+    with:
+      ref: ${{ inputs.ref }}
+
+  report:
+    name: Record result on the tested commit
+    if: always()
+    needs: [level1, level2]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      statuses: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          REF: ${{ inputs.ref }}
+          LEVEL1: ${{ needs.level1.result }}
+          LEVEL2: ${{ needs.level2.result }}
+        run: |
+          sha=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${REF}" --jq .sha)
+          ok=true
+          for r in "$LEVEL1" "$LEVEL2"; do [ "$r" = "success" ] || [ "$r" = "skipped" ] || ok=false; done
+          state=$([ "$ok" = "true" ] && echo success || echo failure)
+          gh api "repos/${GITHUB_REPOSITORY}/statuses/${sha}" -f state="$state" -f context="ci/manual run" \
+            -f description="Level 1: ${LEVEL1}; level 2: ${LEVEL2}" \
+            -f target_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          echo "Tested ${REF} = ${sha}: ${state} (level 1 ${LEVEL1}, level 2 ${LEVEL2})" >> "$GITHUB_STEP_SUMMARY"

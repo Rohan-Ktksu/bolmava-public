@@ -1,0 +1,45 @@
+name: Telugu copy review (advisory)
+
+on:
+  pull_request:
+    paths:
+      - frontend/src/i18n.tsx
+      - tools/telugu_review.py
+      - tools/test_telugu_review.py
+      - .github/workflows/telugu-review.yml
+
+permissions:
+  contents: read
+  actions: read # to check that the previous push's review passed before skipping
+
+jobs:
+  review:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45 # a five-minute wait per model across the fallback chain still fits
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check the review parser offline
+        run: python tools/test_telugu_review.py
+      - name: Ask Gemini for advisory findings
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
+          PREVIOUS_SHA: ${{ github.event.before }} # skip the requests when only scripts changed
+          RUN_ATTEMPT: ${{ github.run_attempt }} # a manual re-run always reviews
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python tools/telugu_review.py
+      - name: Save report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: telugu-review
+          path: |
+            telugu-review-input.json
+            telugu-review.md
+          if-no-files-found: ignore
+          retention-days: 7
